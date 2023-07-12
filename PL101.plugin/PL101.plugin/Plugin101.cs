@@ -44,54 +44,61 @@ namespace PL101.plugin
                     string rfc = null;
                     string nombre = null;
                     string apellido = null;
+                    bool core = false;
 
                     //Inicializando
-                    if(contact.Contains("crc3e_rfc"))
+                    if (contact.Contains("crc3e_envioalcore"))
                     {
-                        rfc = contact.GetAttributeValue<string>("crc3e_rfc");
+                        core = contact.GetAttributeValue<bool>("crc3e_envioalcore");
                     }
-                    if(contact.Contains("firstname"))
+                    if (core == true)
                     {
-                        nombre = contact.GetAttributeValue<string>("firstname");
+                        if (contact.Contains("crc3e_rfc"))
+                        {
+                            rfc = contact.GetAttributeValue<string>("crc3e_rfc");
+                        }
+                        if (contact.Contains("firstname"))
+                        {
+                            nombre = contact.GetAttributeValue<string>("firstname");
+                        }
+                        //Con operacion ternario                 
+                        apellido = !string.IsNullOrEmpty(contact.GetAttributeValue<string>("lastname")) ? contact.GetAttributeValue<string>("lastname") : "NO LASTNAME";
+
+                        // Paso 2: Construir el request con las variables del Paso 1
+                        string host;
+                        host = "https://servicioclientesfederacion.azurewebsites.net";
+                        string recurso;
+                        recurso = "/api/altacliente";
+                        string endpoint = host + recurso;
+
+                        string request;
+                        string nombreCompleto;
+                        nombreCompleto = $"{nombre} {apellido}";
+
+                        request = GenerarJSONRequest(nombreCompleto, rfc);
+
+                        var data = new StringContent(request, Encoding.UTF8, "application/json");
+
+                        // Paso 3: Mandar el request con las variables
+                        HttpClient cliente = new HttpClient();
+                        var message = cliente.PostAsync(endpoint, data).Result;
+                        //HttpResponseMessage response =
+
+                        // Paso 4: Obtener respuesta del request
+                        string responseString = null;
+
+                        if (message.IsSuccessStatusCode)
+                        {
+                            responseString = message.Content.ReadAsStringAsync().Result;
+                        }
+                        // Paso 5: Mapear datos en CRM
+                        JavaScriptSerializer serializer = new JavaScriptSerializer();
+
+                        ResponseClass objresponse = serializer.Deserialize<ResponseClass>(responseString);
+
+                        contact["crc3e_folio"] = objresponse.folio;
+                        contact["description"] = objresponse.interpretacion;
                     }
-                    //Con operacion ternario                 
-                    apellido = !string.IsNullOrEmpty(contact.GetAttributeValue<string>("lastname")) ? contact.GetAttributeValue<string>("lastname") : "NO LASTNAME";
-
-                    // Paso 2: Construir el request con las variables del Paso 1
-                    string host; 
-                    host = "https://servicioclientesfederacion.azurewebsites.net";
-                    string recurso;
-                    recurso = "/api/altacliente";
-                    string endpoint = host + recurso;
-
-                    string request;
-                    string nombreCompleto;
-                    nombreCompleto = $"{nombre} {apellido}";
-
-                    request = GenerarJSONRequest(nombreCompleto, rfc);
-
-                    var data = new StringContent(request, Encoding.UTF8, "application/json");
-
-                    // Paso 3: Mandar el request con las variables
-                    HttpClient cliente = new HttpClient();
-                    var message =  cliente.PostAsync(endpoint, data).Result;
-                    //HttpResponseMessage response =
-
-                    // Paso 4: Obtener respuesta del request
-                    string responseString = null;
-
-                    if (message.IsSuccessStatusCode)
-                    {
-                        responseString = message.Content.ReadAsStringAsync().Result;
-                    }
-                    // Paso 5: Mapear datos en CRM
-                    JavaScriptSerializer serializer = new JavaScriptSerializer();
-
-                    ResponseClass objresponse = serializer.Deserialize<ResponseClass>(responseString);
-
-                    contact["crc3e_folio"] = objresponse.folio;
-                    contact["description"] = objresponse.interpretacion;
-                   
                 }
 
                 catch (FaultException<OrganizationServiceFault> ex)
