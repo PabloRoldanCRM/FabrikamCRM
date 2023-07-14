@@ -15,7 +15,8 @@ namespace PL101.plugin
     {
 
         public void Execute(IServiceProvider serviceProvider)
-        {
+        { // Tres tristes tigres
+            // Parangaricutimiricuaro
             // Obtain the tracing service
 
             ITracingService tracingService =
