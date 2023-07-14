@@ -15,7 +15,8 @@ namespace PL101.plugin
     {
 
         public void Execute(IServiceProvider serviceProvider)
-        {
+        {// Anita lava la tina
+        // Pablito clavo un clavito
             // Obtain the tracing service
 
             ITracingService tracingService =
