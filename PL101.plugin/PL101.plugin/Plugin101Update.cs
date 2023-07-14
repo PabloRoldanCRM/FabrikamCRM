@@ -15,11 +15,11 @@ namespace PL101.plugin
     {
 
         public void Execute(IServiceProvider serviceProvider)
-        {// Anita lava la tina
-        // Pablito clavo un clavito
         { // Tres tristes tigres
-            // Parangaricutimiricuaro
-            // Obtain the tracing service
+          // Parangaricutimiricuaro
+          // Obtain the tracing service
+          // Anita lava la tina
+          // Pablito clavo un clavito
 
             ITracingService tracingService =
             (ITracingService)serviceProvider.GetService(typeof(ITracingService));
